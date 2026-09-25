@@ -42,7 +42,7 @@
         <button onclick="toggleConfigScript()" title="Configurer l'URL Google Script" class="bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 p-2.5 rounded-xl border border-slate-700/50 transition text-sm">
             ⚙️
         </button>
-                <button onclick="lancerScanAPI()" id="btnScan" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-blue-600/20 active:scale-95">Lancer le scan API</button>
+                <button onclick="lancerScanAPI()" id="btnScan" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-blue-600/20 active:scale-95">Actualise les prix</button>
             </div>
         </header>
         <!-- Champ URL Google Script masqué par défaut -->
@@ -287,7 +287,7 @@
                 container.classList.add("hidden");
             }
         }
-        
+
         async function lancerScanAPI() {
             const url = document.getElementById("scriptUrl").value.trim();
             if (!url) {
