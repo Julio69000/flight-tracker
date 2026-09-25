@@ -236,61 +236,60 @@
         }
 
         async function lancerScanAPI() {
-            const url = document.getElementById("scriptUrl").value.trim();
-            if (!url) {
-                alert("Veuillez renseigner l'URL de votre application web Google Apps Script (/exec).");
-                return;
-            }
+    const url = document.getElementById("scriptUrl").value.trim();
+    if (!url) {
+        alert("Veuillez renseigner l'URL de votre application web Google Apps Script (/exec).");
+        return;
+    }
 
-            if (vols.length === 0) {
-                alert("Aucun vol configuré à scanner.");
-                return;
-            }
+    if (vols.length === 0) {
+        alert("Aucun vol configuré à scanner.");
+        return;
+    }
 
-            const btn = document.getElementById("btnScan");
-            btn.disabled = true;
-            btn.textContent = "Scan Skyscanner en cours...";
+    const btn = document.getElementById("btnScan");
+    btn.disabled = true;
+    btn.textContent = "Scan Skyscanner en cours...";
 
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify({ vols: vols })
-                });
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            body: JSON.stringify({ vols: vols })
+        });
 
-                const result = await response.json();
-                if (result.status === "success") {
-					// Mettre à jour chaque vol dans Supabase avec les résultats renvoyés par GAS
-					for (let volMaj of result.data) {
-						const { error } = await _supabase.from('vols').update({
-							prix_actuel: volMaj.prix_actuel,
-							prix_precedent: volMaj.prix_precedent,
-							prix_min: volMaj.prix_min,
-							vendeur: volMaj.vendeur,
-							derniere_verification: volMaj.derniere_verification,
-							lien: volMaj.lien
-						}).eq('id', volMaj.id);
+        const result = await response.json();
+        if (result.status === "success") {
+            // Mettre à jour chaque vol dans Supabase avec les résultats renvoyés par GAS
+            for (let volMaj of result.data) {
+                const { error } = await _supabase.from('vols').update({
+                    prix_actuel: volMaj.prix_actuel,
+                    prix_precedent: volMaj.prix_precedent,
+                    prix_min: volMaj.prix_min,
+                    vendeur: volMaj.vendeur,
+                    derniere_verification: volMaj.derniere_verification,
+                    lien: volMaj.lien
+                }).eq('id', volMaj.id);
 
-						if (error) {
-							console.error(`Erreur Supabase pour le vol ${volMaj.id}:`, error);
-							alert(`Erreur de mise à jour Supabase : ${error.message}`);
-							return;
-						}
-					}
-
-					await chargerVolsDepuisSupabase();
-					alert("Scan et mise à jour des prix réussis !");
-				}
-                } else {
-                    alert("Erreur du script : " + result.message);
+                if (error) {
+                    console.error(`Erreur Supabase pour le vol ${volMaj.id}:`, error);
+                    alert(`Erreur Supabase lors de la mise à jour du vol : ${error.message}`);
+                    return;
                 }
-            } catch (error) {
-                console.error(error);
-                alert("Erreur de communication avec Google Apps Script.");
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Lancer le scan API";
             }
+
+            await chargerVolsDepuisSupabase();
+            alert("Scan et mise à jour des prix réussis !");
+        } else {
+            alert("Erreur du script : " + result.message);
         }
+    } catch (error) {
+        console.error(error);
+        alert("Erreur de communication avec Google Apps Script.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Lancer le scan API";
+    }
+}
     </script>
 </body>
 </html>
