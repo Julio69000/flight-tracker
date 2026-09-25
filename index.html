@@ -27,7 +27,7 @@
         <section class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
             <h2 id="formTitle" class="text-lg font-semibold mb-4 text-slate-200">Ajouter un nouveau vol à suivre</h2>
             <form id="volForm" onsubmit="enregistrerVol(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                <input type="hidden" id="editId" value="-1">
+                <input type="hidden" id="editId" value="">
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">Statut</label>
                     <select id="statut" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-200">
@@ -96,19 +96,17 @@
 
     <script>
         // --- CONFIGURATION SUPABASE ---
-        const SUPABASE_URL = "https://xgqyifrbhcnhxrtnxnjf.supabase.co";       // Remplacez par votre URL Supabase
-        const SUPABASE_ANON_KEY = "sb_publishable_Wy_HcBbudLuGkZZ4FZHYPg_SA2i4457"; // Remplacez par votre clé Anon Supabase
+        const SUPABASE_URL = "https://xgqyifrbhcnhxrtnxnjf.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_Wy_HcBbudLuGkZZ4FZHYPg_SA2i4457";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let vols = [];
 
-        // Gestion de l'URL Google Apps Script en mémoire locale
         document.getElementById("scriptUrl").value = localStorage.getItem("skyscanner_webapp_url") || "";
         document.getElementById("scriptUrl").addEventListener("input", (e) => {
             localStorage.setItem("skyscanner_webapp_url", e.target.value.trim());
         });
 
-        // Charger les données au démarrage depuis Supabase
         document.addEventListener("DOMContentLoaded", chargerVolsDepuisSupabase);
 
         async function chargerVolsDepuisSupabase() {
@@ -119,7 +117,7 @@
 
             if (error) {
                 console.error("Erreur de chargement Supabase:", error);
-                alert("Impossible de charger les données depuis Supabase.");
+                alert("Impossible de charger les données depuis Supabase : " + error.message);
                 return;
             }
 
@@ -167,7 +165,7 @@
 
         async function enregistrerVol(event) {
             event.preventDefault();
-            const editId = document.getElementById("editId").value; // UUID ou "-1"
+            const editId = document.getElementById("editId").value;
             
             const payload = {
                 statut: document.getElementById("statut").value,
@@ -180,7 +178,7 @@
             };
 
             let error;
-            if (editId === "-1") {
+            if (!editId || editId === "") {
                 const res = await _supabase.from('vols').insert([payload]);
                 error = res.error;
             } else {
@@ -190,7 +188,7 @@
 
             if (error) {
                 console.error("Erreur d'enregistrement Supabase:", error);
-                alert("Erreur lors de l'enregistrement.");
+                alert("Erreur lors de l'enregistrement : " + error.message);
                 return;
             }
 
@@ -199,7 +197,7 @@
         }
 
         function editerVol(id) {
-            const vol = vols.find(v => v.id === id);
+            const vol = vols.find(v => String(v.id) === String(id));
             if (!vol) return;
 
             document.getElementById("editId").value = vol.id;
@@ -221,7 +219,7 @@
                 const { error } = await _supabase.from('vols').delete().eq('id', id);
                 if (error) {
                     console.error("Erreur suppression:", error);
-                    alert("Impossible de supprimer le vol.");
+                    alert("Impossible de supprimer le vol : " + error.message);
                     return;
                 }
                 await chargerVolsDepuisSupabase();
@@ -230,66 +228,65 @@
 
         function resetForm() {
             document.getElementById("volForm").reset();
-            document.getElementById("editId").value = "-1";
+            document.getElementById("editId").value = "";
             document.getElementById("formTitle").textContent = "Ajouter un nouveau vol à suivre";
             document.getElementById("btnSubmit").textContent = "Ajouter";
         }
 
         async function lancerScanAPI() {
-    const url = document.getElementById("scriptUrl").value.trim();
-    if (!url) {
-        alert("Veuillez renseigner l'URL de votre application web Google Apps Script (/exec).");
-        return;
-    }
-
-    if (vols.length === 0) {
-        alert("Aucun vol configuré à scanner.");
-        return;
-    }
-
-    const btn = document.getElementById("btnScan");
-    btn.disabled = true;
-    btn.textContent = "Scan Skyscanner en cours...";
-
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            body: JSON.stringify({ vols: vols })
-        });
-
-        const result = await response.json();
-        if (result.status === "success") {
-            // Mettre à jour chaque vol dans Supabase avec les résultats renvoyés par GAS
-            for (let volMaj of result.data) {
-                const { error } = await _supabase.from('vols').update({
-                    prix_actuel: volMaj.prix_actuel,
-                    prix_precedent: volMaj.prix_precedent,
-                    prix_min: volMaj.prix_min,
-                    vendeur: volMaj.vendeur,
-                    derniere_verification: volMaj.derniere_verification,
-                    lien: volMaj.lien
-                }).eq('id', volMaj.id);
-
-                if (error) {
-                    console.error(`Erreur Supabase pour le vol ${volMaj.id}:`, error);
-                    alert(`Erreur Supabase lors de la mise à jour du vol : ${error.message}`);
-                    return;
-                }
+            const url = document.getElementById("scriptUrl").value.trim();
+            if (!url) {
+                alert("Veuillez renseigner l'URL de votre application web Google Apps Script (/exec).");
+                return;
             }
 
-            await chargerVolsDepuisSupabase();
-            alert("Scan et mise à jour des prix réussis !");
-        } else {
-            alert("Erreur du script : " + result.message);
+            if (vols.length === 0) {
+                alert("Aucun vol configuré à scanner.");
+                return;
+            }
+
+            const btn = document.getElementById("btnScan");
+            btn.disabled = true;
+            btn.textContent = "Scan Skyscanner en cours...";
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify({ vols: vols })
+                });
+
+                const result = await response.json();
+                if (result.status === "success") {
+                    for (let volMaj of result.data) {
+                        const { error } = await _supabase.from('vols').update({
+                            prix_actuel: volMaj.prix_actuel,
+                            prix_precedent: volMaj.prix_precedent,
+                            prix_min: volMaj.prix_min,
+                            vendeur: volMaj.vendeur,
+                            derniere_verification: volMaj.derniere_verification,
+                            lien: volMaj.lien
+                        }).eq('id', volMaj.id);
+
+                        if (error) {
+                            console.error(`Erreur Supabase pour le vol ${volMaj.id}:`, error);
+                            alert(`Erreur Supabase lors de la mise à jour : ${error.message}`);
+                            return;
+                        }
+                    }
+
+                    await chargerVolsDepuisSupabase();
+                    alert("Scan et mise à jour des prix réussis !");
+                } else {
+                    alert("Erreur du script : " + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erreur de communication avec Google Apps Script.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Lancer le scan API";
+            }
         }
-    } catch (error) {
-        console.error(error);
-        alert("Erreur de communication avec Google Apps Script.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Lancer le scan API";
-    }
-}
     </script>
 </body>
 </html>
