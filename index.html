@@ -259,20 +259,27 @@
 
                 const result = await response.json();
                 if (result.status === "success") {
-                    // Mettre à jour chaque vol dans Supabase avec les résultats renvoyés par GAS
-                    for (let volMaj of result.data) {
-                        await _supabase.from('vols').update({
-                            prix_actuel: volMaj.prix_actuel,
-                            prix_precedent: volMaj.prix_precedent,
-                            prix_min: volMaj.prix_min,
-                            vendeur: volMaj.vendeur,
-                            derniere_verification: volMaj.derniere_verification,
-                            lien: volMaj.lien
-                        }).eq('id', volMaj.id);
-                    }
+					// Mettre à jour chaque vol dans Supabase avec les résultats renvoyés par GAS
+					for (let volMaj of result.data) {
+						const { error } = await _supabase.from('vols').update({
+							prix_actuel: volMaj.prix_actuel,
+							prix_precedent: volMaj.prix_precedent,
+							prix_min: volMaj.prix_min,
+							vendeur: volMaj.vendeur,
+							derniere_verification: volMaj.derniere_verification,
+							lien: volMaj.lien
+						}).eq('id', volMaj.id);
 
-                    await chargerVolsDepuisSupabase();
-                    alert("Scan et mise à jour des prix réussis !");
+						if (error) {
+							console.error(`Erreur Supabase pour le vol ${volMaj.id}:`, error);
+							alert(`Erreur de mise à jour Supabase : ${error.message}`);
+							return;
+						}
+					}
+
+					await chargerVolsDepuisSupabase();
+					alert("Scan et mise à jour des prix réussis !");
+				}
                 } else {
                     alert("Erreur du script : " + result.message);
                 }
