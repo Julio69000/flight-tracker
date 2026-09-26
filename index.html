@@ -197,7 +197,7 @@
                     </td>        
                     <td class="p-4 font-extrabold text-emerald-400 text-sm">${vol.prix_actuel ? vol.prix_actuel + ' €' : '-'}${lienHtml}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">Min: <span class="text-slate-200">${vol.prix_min ? vol.prix_min + ' €' : '-'}</span><br>Préc: <span class="text-slate-200">${vol.prix_precedent ? vol.prix_precedent + ' €' : '-'}</span></td>
-                    <td class="p-4 text-[11px] text-slate-500">${vol.derniere_verification ? vol.derniere_verification.replace('T',' ').replace('Z','') : 'Jamais'}</td>
+                    <td class="p-4 text-[11px] text-slate-500">${vol.derniere_verification ? vol.derniere_verification.replace('T',' ').replace(/\+.*/, '').replace('Z','') : 'Jamais'}</td>
                     <td class="p-4 text-right space-x-3">
                         <button onclick="editerVol('${vol.id}')" class="text-amber-400 hover:text-amber-300 font-medium transition">Éditer</button>
                         <button onclick="supprimerVol('${vol.id}')" class="text-red-400 hover:text-red-300 font-medium transition">Supprimer</button>
