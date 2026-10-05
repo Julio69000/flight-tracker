@@ -183,8 +183,12 @@
                 
                 let lienHtml = vol.lien ? `<a href="${vol.lien}" target="_blank" class="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 ml-1.5 underline underline-offset-2">Lien ↗</a>` : "";
                 let statutBadge = vol.statut === "ACTIF" 
-                    ? '<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Actif</span>' 
-                    : '<span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Inactif</span>';
+                    ? '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Actif</span>' 
+                    : '<span class="bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Inactif</span>';
+
+                // Utilisation du nom de l'aéroport/ville si disponible, sinon repli sur le code IATA
+                const nomDepart = vol.nom_depart || vol.depart;
+                const nomArrivee = vol.nom_arrivee || vol.arrivee;
 
                 // Construction de l'affichage des dates et horaires
                 let allerStr = `Aller: <span class="text-slate-200">${vol.date_aller}</span>`;
@@ -208,7 +212,7 @@
 
                 tr.innerHTML = `
                     <td class="p-4">${statutBadge}</td>
-                    <td class="p-4 font-bold text-white text-xs">${vol.depart} ➔ ${vol.arrivee}</td>
+                    <td class="p-4 font-bold text-white text-xs">${nomDepart} ➔ ${nomArrivee}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">${allerStr}${retourStr}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">
                         ${vol.compagnie ? 'Cible : <span class="text-slate-200">' + vol.compagnie + '</span>' : 'Recherche globale'}<br>
@@ -226,6 +230,7 @@
                 tbody.appendChild(tr);
             });
         }
+
 
         async function enregistrerVol(event) {
             event.preventDefault();
