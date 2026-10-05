@@ -219,7 +219,13 @@
                         <span class="text-blue-400 font-medium">Trouvé : ${vol.vendeur || 'Aucun'}</span><br>
                         Escales max: ${vol.escales || '0'}
                     </td>        
-                    <td class="p-4 font-extrabold text-emerald-400 text-sm">${vol.prix_actuel ? vol.prix_actuel + ' €' : '-'}${lienHtml}</td>
+                    <td class="p-4"><div class="font-extrabold text-emerald-400 text-sm">${vol.prix_actuel ? vol.prix_actuel + ' €' : '-'}${lienHtml}</div>
+                    ${vol.date_retour ? `<div class="text-[10px] text-slate-400 mt-0.5">
+                        Aller: <span class="text-slate-200">${vol.prix_aller !== null && vol.prix_aller !== undefined ? vol.prix_aller + ' €' : '-'}</span> | 
+                        Retour: <span class="text-slate-200">${vol.prix_retour !== null && vol.prix_retour !== undefined ? vol.prix_retour + ' €' : '-'}</span>
+                    </div>
+                ` : ''}
+                </td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">Min: <span class="text-slate-200">${vol.prix_min ? vol.prix_min + ' €' : '-'}</span><br>Préc: <span class="text-slate-200">${vol.prix_precedent ? vol.prix_precedent + ' €' : '-'}</span></td>
                     <td class="p-4 text-[11px] text-slate-500">${vol.derniere_verification ? vol.derniere_verification.replace('T',' ').replace(/\+.*/, '').replace('Z','') : 'Jamais'}</td>
                     <td class="p-4 text-right space-x-3">
@@ -352,7 +358,9 @@
                             escale_aller: volMaj.escale_aller,
                             escale_retour: volMaj.escale_retour,
                             nom_depart: volMaj.nom_depart,
-                            nom_arrivee: volMaj.nom_arrivee
+                            nom_arrivee: volMaj.nom_arrivee,
+                            prix_aller: volMaj.prix_aller,
+                            prix_retour: volMaj.prix_retour
                         }).eq('id', volMaj.id);
 
                         if (error) {
