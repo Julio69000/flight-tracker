@@ -186,11 +186,11 @@
                     ? '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Actif</span>' 
                     : '<span class="bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Inactif</span>';
 
-                // Utilisation du nom de l'aéroport/ville si disponible, sinon repli sur le code IATA
+                // Utilisation du nom de la ville récupéré par l'API (sinon code IATA)
                 const nomDepart = vol.nom_depart || vol.depart;
                 const nomArrivee = vol.nom_arrivee || vol.arrivee;
 
-                // Construction de l'affichage des dates et horaires
+                // Construction de l'affichage des dates, horaires et escales
                 let allerStr = `Aller: <span class="text-slate-200">${vol.date_aller}</span>`;
                 if (vol.heure_depart_aller && vol.heure_arrivee_aller) {
                     allerStr += ` <span class="text-amber-300">(${vol.heure_depart_aller} ➔ ${vol.heure_arrivee_aller})</span>`;
@@ -212,12 +212,12 @@
 
                 tr.innerHTML = `
                     <td class="p-4">${statutBadge}</td>
-                    <td class="p-4 font-bold text-white text-xs">${nomDepart} ➔ ${nomArrivee}</td>
+                    <td class="p-4 font-bold text-white text-xs">${nomDepart} ➔ ${nomArrivee} <span class="text-slate-500 text-[10px] font-normal">(${vol.depart}➔${vol.arrivee})</span></td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">${allerStr}${retourStr}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">
                         ${vol.compagnie ? 'Cible : <span class="text-slate-200">' + vol.compagnie + '</span>' : 'Recherche globale'}<br>
                         <span class="text-blue-400 font-medium">Trouvé : ${vol.vendeur || 'Aucun'}</span><br>
-                        Escales: ${vol.escales || '0'}
+                        Escales max: ${vol.escales || '0'}
                     </td>        
                     <td class="p-4 font-extrabold text-emerald-400 text-sm">${vol.prix_actuel ? vol.prix_actuel + ' €' : '-'}${lienHtml}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">Min: <span class="text-slate-200">${vol.prix_min ? vol.prix_min + ' €' : '-'}</span><br>Préc: <span class="text-slate-200">${vol.prix_precedent ? vol.prix_precedent + ' €' : '-'}</span></td>
@@ -348,7 +348,11 @@
                             heure_depart_aller: volMaj.heure_depart_aller,
                             heure_arrivee_aller: volMaj.heure_arrivee_aller,
                             heure_depart_retour: volMaj.heure_depart_retour,
-                            heure_arrivee_retour: volMaj.heure_arrivee_retour
+                            heure_arrivee_retour: volMaj.heure_arrivee_retour,
+                            escale_aller: volMaj.escale_aller,
+                            escale_retour: volMaj.escale_retour,
+                            nom_depart: volMaj.nom_depart,
+                            nom_arrivee: volMaj.nom_arrivee
                         }).eq('id', volMaj.id);
 
                         if (error) {
