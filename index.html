@@ -191,12 +191,18 @@
                 if (vol.heure_depart_aller && vol.heure_arrivee_aller) {
                     allerStr += ` <span class="text-amber-300">(${vol.heure_depart_aller} ➔ ${vol.heure_arrivee_aller})</span>`;
                 }
+                if (vol.escale_aller) {
+                    allerStr += `<br><span class="text-orange-400 text-[10px]">Escale(s) aller : ${vol.escale_aller}</span>`;
+                }
 
                 let retourStr = "";
                 if (vol.date_retour) {
                     retourStr = `<br>Ret: <span class="text-slate-200">${vol.date_retour}</span>`;
                     if (vol.heure_depart_retour && vol.heure_arrivee_retour) {
                         retourStr += ` <span class="text-amber-300">(${vol.heure_depart_retour} ➔ ${vol.heure_arrivee_retour})</span>`;
+                    }
+                    if (vol.escale_retour) {
+                        retourStr += `<br><span class="text-orange-400 text-[10px]">Escale(s) retour : ${vol.escale_retour}</span>`;
                     }
                 }
 
