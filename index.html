@@ -186,10 +186,24 @@
                     ? '<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Actif</span>' 
                     : '<span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2.5 py-1 rounded-full font-medium inline-block">Inactif</span>';
 
+                // Construction de l'affichage des dates et horaires
+                let allerStr = `Aller: <span class="text-slate-200">${vol.date_aller}</span>`;
+                if (vol.heure_depart_aller && vol.heure_arrivee_aller) {
+                    allerStr += ` <span class="text-amber-300">(${vol.heure_depart_aller} ➔ ${vol.heure_arrivee_aller})</span>`;
+                }
+
+                let retourStr = "";
+                if (vol.date_retour) {
+                    retourStr = `<br>Ret: <span class="text-slate-200">${vol.date_retour}</span>`;
+                    if (vol.heure_depart_retour && vol.heure_arrivee_retour) {
+                        retourStr += ` <span class="text-amber-300">(${vol.heure_depart_retour} ➔ ${vol.heure_arrivee_retour})</span>`;
+                    }
+                }
+
                 tr.innerHTML = `
                     <td class="p-4">${statutBadge}</td>
                     <td class="p-4 font-bold text-white text-xs">${vol.depart} ➔ ${vol.arrivee}</td>
-                    <td class="p-4 text-[11px] text-slate-400 leading-relaxed">Aller: <span class="text-slate-200">${vol.date_aller}</span><br>${vol.date_retour ? 'Ret: <span class="text-slate-200">' + vol.date_retour + '</span>' : ''}</td>
+                    <td class="p-4 text-[11px] text-slate-400 leading-relaxed">${allerStr}${retourStr}</td>
                     <td class="p-4 text-[11px] text-slate-400 leading-relaxed">
                         ${vol.compagnie ? 'Cible : <span class="text-slate-200">' + vol.compagnie + '</span>' : 'Recherche globale'}<br>
                         <span class="text-blue-400 font-medium">Trouvé : ${vol.vendeur || 'Aucun'}</span><br>
@@ -288,7 +302,7 @@
             }
         }
 
-        async function lancerScanAPI() {
+       async function lancerScanAPI() {
             const url = document.getElementById("scriptUrl").value.trim();
             if (!url) {
                 ouvrirModal("Attention", "Veuillez renseigner l'URL de votre application web Google Apps Script (/exec).");
@@ -319,7 +333,11 @@
                             prix_min: volMaj.prix_min,
                             vendeur: volMaj.vendeur,
                             derniere_verification: volMaj.derniere_verification,
-                            lien: volMaj.lien
+                            lien: volMaj.lien,
+                            heure_depart_aller: volMaj.heure_depart_aller,
+                            heure_arrivee_aller: volMaj.heure_arrivee_aller,
+                            heure_depart_retour: volMaj.heure_depart_retour,
+                            heure_arrivee_retour: volMaj.heure_arrivee_retour
                         }).eq('id', volMaj.id);
 
                         if (error) {
